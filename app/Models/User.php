@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'current_org_id'
     ];
 
     /**
@@ -48,7 +49,10 @@ class User extends Authenticatable
 
     public function organization()
     {
-        return $this->belongsTo(organization::class);
+        return $this->belongsToMany(
+        Organization::class,
+        'organization_user'
+        )->withPivot('role_id');
     }
 
     public function assignedTasks()

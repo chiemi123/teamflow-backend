@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 
-class TaskStatus extends Model
+class TaskStatus extends BaseModel
 {
+    protected $fillable = [
+        'organization_id',
+        'name',
+        'color',
+        'sort_order'
+    ];
+
     public function tasks()
     {
         return $this->hasMany(Task::class);
