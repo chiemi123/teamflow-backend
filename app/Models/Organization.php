@@ -6,9 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Organization extends Model
 {
+    protected $fillable = [
+        'name'
+    ];
+
     public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(User::class,'organization_user')
+                    ->withPivot('role_id');
     }
 
     public function project()
