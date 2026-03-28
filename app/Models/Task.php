@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasOrganization;
+use App\Traits\HasCreator;
 
 class Task extends BaseModel
 {
     use HasOrganization;
+    use HasCreator;
 
     protected $fillable = [
         'organization_id',

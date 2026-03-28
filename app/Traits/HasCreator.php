@@ -2,21 +2,20 @@
 
 namespace App\Traits;
 
-
 /** @var \App\Models\User|null $user */
-trait HasOrganization
+trait HasCreator
 {
-    protected static function bootHasOrganization()
+    protected static function bootHasCreator()
     {
         static::creating(function ($model) {
 
             /** @var \App\Models\User|null $user */
-
             $user = auth()->user();
 
-            if (!$model->organization_id && $user) {
-                $model->organization_id = $user->current_org_id;
+            if (!$model->created_by && $user) {
+                $model->created_by = $user->id;
             }
+
         });
     }
 }
