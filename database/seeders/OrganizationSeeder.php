@@ -16,5 +16,9 @@ class OrganizationSeeder extends Seeder
         Organization::firstOrCreate([
             'name' => 'Demo Organization'
         ]);
+
+        Organization::firstOrCreate([
+            'name' => 'Other Organization'
+        ]);
     }
 }
