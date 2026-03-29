@@ -13,6 +13,7 @@ class TaskController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', Task::class);
         return Task::all();
     }
 
@@ -24,6 +25,12 @@ class TaskController extends Controller
         $orgId = auth()->user()->current_org_id;
 
         $defaultStatus = TaskStatus::getDefault($orgId);
+
+        if (!$defaultStatus) {
+            return response()->json([
+                'message' => 'Default status not found for this organization'
+            ], 500);
+        }
 
         $task = Task::create([
             ...$request->validated(),

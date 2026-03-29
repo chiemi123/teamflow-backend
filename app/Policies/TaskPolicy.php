@@ -44,7 +44,10 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        return $user->isOwner() || $user->Admin();
+        return (
+            $task->organization_id === $user->current_org_id
+            && ($user->isOwner() || $user->isAdmin())
+        );
     }
 
     /**
