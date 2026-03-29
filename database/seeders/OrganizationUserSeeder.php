@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Organization;
@@ -17,29 +16,40 @@ class OrganizationUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::where('email', 'admin@example.com')->first();
-        $organization = Organization::first();
-        $role = Role::where('name', 'Owner')->first();
+        $org1 = Organization::where('name', 'Demo Organization')->first();
+        $org2 = Organization::where('name', 'Other Organization')->first();
 
-        if (! $user) {
-            throw new RuntimeException('admin@example.com のユーザーが存在しません。先に UserSeeder を実行してください。');
+        $user1 = User::where('email', 'admin@example.com')->first();
+        $user2 = User::where('email', 'user2@example.com')->first();
+
+        $ownerRole = Role::where('name', 'Owner')->first();
+        $memberRole = Role::where('name', 'Member')->first();
+
+        if (!$org1 || !$org2 || !$user1 || !$user2 || !$ownerRole || !$memberRole) {
+            throw new RuntimeException('前提データ不足');
         }
 
-        if (! $organization) {
-            throw new RuntimeException('Demo Organization が存在しません。先に OrganizationSeeder を実行してください。');
-        }
-
-        if (! $role) {
-            throw new RuntimeException('Owner ロールが存在しません。先に RolesSeeder を実行してください。');
-        }
-
+        // admin → Owner（Demo Organization）
         DB::table('organization_user')->updateOrInsert(
             [
-                'organization_id' => $organization->id,
-                'user_id' => $user->id
+                'organization_id' => $org1->id,
+                'user_id' => $user1->id
             ],
             [
-                'role_id' => $role->id,
+                'role_id' => $ownerRole->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        // user2 → Member（Other Organization）
+        DB::table('organization_user')->updateOrInsert(
+            [
+                'organization_id' => $org2->id,
+                'user_id' => $user2->id
+            ],
+            [
+                'role_id' => $memberRole->id,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]

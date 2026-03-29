@@ -25,26 +25,28 @@ class ProjectSeeder extends Seeder
             throw new RuntimeException('Seederの前提データが不足しています');
         }
 
-        Project::updateOrCreate(
-            [
-                'name' => 'Demo Project',
-                'organization_id' => $org1->id,
-            ],
-            [
-                'description' => 'Demo Organization Project',
-                'creator_id' => $user1->id,
-            ]
-        );
+        Project::unguarded(function () use ($org1, $org2, $user1, $user2) {
+            Project::updateOrCreate(
+                [
+                    'name' => 'Demo Project',
+                    'organization_id' => $org1->id,
+                ],
+                [
+                    'description' => 'Demo Organization Project',
+                    'created_by' => $user1->id,
+                ]
+            );
 
-        Project::updateOrCreate(
-            [
-                'name' => 'Other Project',
-                'organization_id' => $org2->id,
-            ],
-            [
-                'description' => 'Other Organization Project',
-                'creator_id' => $user2->id,
-            ]
-        );
+            Project::updateOrCreate(
+                [
+                    'name' => 'Other Project',
+                    'organization_id' => $org2->id,
+                ],
+                [
+                    'description' => 'Other Organization Project',
+                    'created_by' => $user2->id,
+                ]
+            );
+        });
     }
 }
