@@ -3,16 +3,19 @@
 namespace App\Models;
 
 use App\Traits\HasOrganization;
+use App\Traits\HasCreator;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends BaseModel
 {
     use HasOrganization;
+    use HasCreator;
+    use SoftDeletes;
+
 
     protected $fillable = [
-        'organization_id',
         'name',
         'description',
-        'created_by'
     ];
 
     protected $casts = [

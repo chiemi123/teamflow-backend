@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('creator_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
-            
-            $table->unique(['organization_id','name']);
+
+            $table->unique(['organization_id', 'name']);
         });
     }
 

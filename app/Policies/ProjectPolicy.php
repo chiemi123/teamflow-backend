@@ -12,7 +12,7 @@ class ProjectPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->current_org_id !== null;
     }
 
     /**
@@ -36,7 +36,8 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        return $project->organization_id === $user->current_org_id && ($user->isOwner() || $user->isAdmin());
+        return $this->isSameOrg($user, $project)
+            && ($user->isOwner() || $user->isAdmin());
     }
 
     /**
@@ -44,7 +45,16 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        return $user->isOwner();
+        return $this->isSameOrg($user, $project)
+            && ($user->isOwner() || $user->isAdmin());
+    }
+
+    /**
+     * 共通関数
+     */
+    private function isSameOrg(User $user, Project $project): bool
+    {
+        return $project->organization_id === $user->current_org_id;
     }
 
     /**
