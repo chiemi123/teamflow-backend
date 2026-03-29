@@ -14,7 +14,7 @@ trait HasOrganization
 
             $user = auth()->user();
 
-            if (!$model->organization_id && $user) {
+            if ($user) {
                 $model->organization_id = $user->current_org_id;
             }
         });

@@ -23,12 +23,20 @@ class StoreTaskRequest extends FormRequest
      */
     public function rules(): array
     {
+
         return [
             'project_id' => [
                 'required',
                 Rule::exists('projects', 'id')
-                    ->where('organization_id', request()->user()->current_org_id)
+                    ->where('organization_id', $this->user()->current_org_id)
             ],
+
+            'assigned_user_id' => [
+                'nullable',
+                Rule::exists('users', 'id')
+                    ->where('organization_id', $this->user()->current_org_id)
+            ],
+
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
         ];

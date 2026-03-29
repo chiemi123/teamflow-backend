@@ -12,13 +12,11 @@ class Task extends BaseModel
     use HasCreator;
 
     protected $fillable = [
-        'organization_id',
         'project_id',
         'status_id',
         'title',
         'description',
         'assigned_user_id',
-        'created_by',
         'due_date'
     ];
 
