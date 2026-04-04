@@ -33,7 +33,7 @@ class StoreTaskRequest extends FormRequest
 
             'assigned_user_id' => [
                 'nullable',
-                Rule::exists('users', 'id')
+                Rule::exists('organization_user', 'user_id')
                     ->where('organization_id', $this->user()->current_org_id)
             ],
 
