@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Http\Resources\ProjectResource;
 
 class ProjectController extends Controller
 {
@@ -14,19 +15,21 @@ class ProjectController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Project::class);
-        return Project::all();
+        $projects = Project::latest()->get();
+        return ProjectResource::collection($projects);
     }
 
     public function store(StoreProjectRequest $request)
     {
         $this->authorize('create', Project::class);
-        return Project::create($request->validated());
+        $project = Project::create($request->validated());
+        return new ProjectResource($project);
     }
 
     public function show(Project $project)
     {
         $this->authorize('view', $project);
-        return $project;
+        return new ProjectResource($project);
     }
 
     public function update(UpdateProjectRequest $request, Project $project)
@@ -35,7 +38,7 @@ class ProjectController extends Controller
 
         $project->update($request->validated());
 
-        return $project;
+        return new ProjectResource($project);
     }
 
     public function destroy(Project $project)

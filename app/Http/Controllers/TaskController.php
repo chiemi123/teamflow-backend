@@ -6,6 +6,7 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Models\TaskStatus;
+use App\Http\Resources\TaskResource;
 
 
 
@@ -14,7 +15,9 @@ class TaskController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Task::class);
-        return Task::all();
+        $tasks = Task::latest()->get();
+
+        return TaskResource::collection($tasks);
     }
 
     public function store(StoreTaskRequest $request)
@@ -37,14 +40,14 @@ class TaskController extends Controller
             'status_id' => $defaultStatus->id,
         ]);
 
-        return response()->json($task, 201);
+        return new TaskResource($task);
     }
 
     public function show(Task $task)
     {
         $this->authorize('view', $task);
 
-        return $task;
+        return new TaskResource($task);
     }
 
     public function update(UpdateTaskRequest $request, Task $task)
@@ -53,7 +56,7 @@ class TaskController extends Controller
 
         $task->update($request->validated());
 
-        return $task;
+        return new TaskResource($task);
     }
 
     public function destroy(Task $task)
