@@ -26,7 +26,7 @@ class UpdateTaskRequest extends FormRequest
             'assigned_user_id' => [
                 'sometimes',
                 'nullable',
-                Rule::exists('users', 'id')
+                Rule::exists('organization_user', 'user_id')
                     ->where('organization_id', $this->user()->current_org_id)
             ],
 

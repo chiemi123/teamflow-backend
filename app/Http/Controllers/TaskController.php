@@ -22,7 +22,7 @@ class TaskController extends Controller
 
         $this->authorize('create', Task::class);
 
-        $orgId = auth()->user()->current_org_id;
+        $orgId = $request->user()->current_org_id;
 
         $defaultStatus = TaskStatus::getDefault($orgId);
 

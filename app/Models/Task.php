@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasOrganization;
 use App\Traits\HasCreator;
 
@@ -10,6 +10,7 @@ class Task extends BaseModel
 {
     use HasOrganization;
     use HasCreator;
+    use SoftDeletes; //追加
 
     protected $fillable = [
         'project_id',
