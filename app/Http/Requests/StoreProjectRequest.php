@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreProjectRequest extends FormRequest
 {
@@ -22,7 +23,13 @@ class StoreProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('projects')
+                    ->where('organization_id', $this->user()->current_org_id),
+            ],
             'description' => ['nullable', 'string'],
         ];
     }
