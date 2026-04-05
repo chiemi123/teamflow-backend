@@ -18,6 +18,10 @@ class ProjectResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name ?? '',
             'description' => $this->description,
+            'created_by_user' => $this->creator ? [
+                'id' => $this->creator->id,
+                'name' => $this->creator->name,
+            ] : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

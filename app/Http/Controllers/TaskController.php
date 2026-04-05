@@ -15,7 +15,9 @@ class TaskController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Task::class);
-        $tasks = Task::latest()->get();
+        $tasks = Task::with(['status', 'assignedUser'])
+            ->latest()
+            ->get();
 
         return TaskResource::collection($tasks);
     }
@@ -45,7 +47,7 @@ class TaskController extends Controller
 
     public function show(Task $task)
     {
-        $this->authorize('view', $task);
+        $task->load(['status', 'assignedUser']);
 
         return new TaskResource($task);
     }

@@ -32,4 +32,9 @@ class Project extends BaseModel
     {
         return $this->hasMany(Task::class);
     }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }
