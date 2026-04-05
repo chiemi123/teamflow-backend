@@ -15,7 +15,9 @@ class ProjectController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Project::class);
-        $projects = Project::latest()->get();
+        $projects = Project::with('creator')
+            ->latest()
+            ->get();
         return ProjectResource::collection($projects);
     }
 
@@ -28,7 +30,7 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
-        $this->authorize('view', $project);
+        $project->load('creator');
         return new ProjectResource($project);
     }
 
@@ -50,4 +52,3 @@ class ProjectController extends Controller
         return response()->noContent();
     }
 }
-
