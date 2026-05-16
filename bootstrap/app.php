@@ -20,13 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('api', [
             EnsureFrontendRequestsAreStateful::class,
         ]);
-
-        // セッションやクッキーに関するミドルウェアを追加
-        $middleware->appendToGroup('web', [
-            StartSession::class,   // セッションの開始
-            AddQueuedCookiesToResponse::class,  // クッキーをレスポンスに追加
-            EncryptCookies::class,  // セッションデータの暗号化
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
