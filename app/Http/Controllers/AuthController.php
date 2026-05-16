@@ -13,6 +13,10 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
+        // ログイン試行時にログを記録
+        Log::info('Login attempt', ['email' => $request->email]);
+
+
         // ユーザーが存在するかを確認
         try {
             $user = User::where('email', $request->email)->first();
@@ -39,7 +43,7 @@ class AuthController extends Controller
 
             // ユーザー情報を返す
             return response()->json([
-                'user' => new UserResource($user)
+                'data' => new UserResource($user)
             ]);
         } catch (\Exception $e) {
             // エラーログを記録
@@ -47,6 +51,25 @@ class AuthController extends Controller
 
             // エラー応答
             return response()->json(['message' => 'Internal server error.'], 500);
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        // ユーザーがログインしているか確認
+        if (Auth::check()) {
+            // ログアウト処理
+            Log::info('Logout attempt', ['user_id' => Auth::id()]);
+
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return response()->json(['message' => 'Logged out'])->withCookie(cookie()->forget('laravel-session'));
+        } else {
+            // ログインしていない場合
+            Log::warning('Logout attempt failed: User not logged in');
+
+            return response()->json(['message' => 'No user logged in'], 400);
         }
     }
 }

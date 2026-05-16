@@ -1,17 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 
-Route::middleware(['web'])->post('/login', [AuthController::class, 'login']);
-Route::middleware(['web'])->post('/logout', function (Request $request) {
-    Auth::logout();
-    $request->session()->invalidate(); // セッション削除
-    $request->session()->regenerateToken(); // CSRFトークンの再生成
 
-    return response()->json([
-        'message' => 'Logged out'
-    ]);
-});
+
+// ログインページの表示
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+
+// ログイン処理
+Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+
+// ログアウト処理
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
