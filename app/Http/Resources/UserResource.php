@@ -18,6 +18,10 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'role' => $this->currentRole()?->name,        // 役割名
+            'can_create_project' => $this->isOwner() || $this->isAdmin(), // 新規作成権限
+            'can_edit_project' => $this->isOwner() || $this->isAdmin(), // 編集権限
+            'can_delete_project' => $this->isOwner() || $this->isAdmin(), // 削除権限
         ];
     }
 }
