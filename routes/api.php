@@ -14,10 +14,10 @@ Route::get('sanctum/csrf-cookie', function (Request $request) {
     return response()->json(['message' => 'CSRF token set']);
 });
 
-// ログイン
+//ログイン
 Route::post('/login', [AuthController::class, 'login']);
 
-// ログアウト
+//ログアウト
 Route::post('/logout', [AuthController::class, 'logout']);
 
 // 認証必要
@@ -29,4 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('tasks', TaskController::class);
     Route::apiResource('projects', ProjectController::class);
+
+    // タスクステータス更新用
+    Route::put('/tasks/{task}/status', [TaskController::class, 'updateStatus']);
 });
