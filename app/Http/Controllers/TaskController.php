@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Requests\UpdateTaskStatusRequest;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Http\Resources\TaskResource;
@@ -57,6 +58,16 @@ class TaskController extends Controller
         $this->authorize('update', $task);
 
         $task->update($request->validated());
+
+        return new TaskResource($task);
+    }
+
+    public function updateStatus(UpdateTaskStatusRequest $request, Task $task)
+    {
+        $this->authorize('update', $task);
+
+        $task->status_id = $request->status_id;
+        $task->save();
 
         return new TaskResource($task);
     }

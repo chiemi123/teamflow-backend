@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\HasOrganization;
 use App\Traits\HasCreator;
 
@@ -11,6 +12,7 @@ class Task extends BaseModel
     use HasOrganization;
     use HasCreator;
     use SoftDeletes; //追加
+    use HasFactory;
 
     protected $fillable = [
         'project_id',

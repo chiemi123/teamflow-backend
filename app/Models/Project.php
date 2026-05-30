@@ -5,12 +5,14 @@ namespace App\Models;
 use App\Traits\HasOrganization;
 use App\Traits\HasCreator;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Project extends BaseModel
 {
     use HasOrganization;
     use HasCreator;
     use SoftDeletes;
+    use HasFactory;
 
 
     protected $fillable = [
