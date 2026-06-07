@@ -2,12 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Resources\UserResource;
-use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use App\Http\Controllers\TaskStatusController;
 
 Route::get('sanctum/csrf-cookie', function (Request $request) {
     // CSRFトークンをセットしたレスポンスを返します
@@ -32,4 +31,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // タスクステータス更新用
     Route::put('/tasks/{task}/status', [TaskController::class, 'updateStatus']);
+    // タスクステータス選択用
+    Route::get('/task-statuses', [TaskStatusController::class, 'index']);
 });
