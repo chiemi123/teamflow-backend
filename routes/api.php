@@ -7,6 +7,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Resources\UserResource;
 use App\Http\Controllers\TaskStatusController;
+use App\Http\Controllers\TaskCommentController;
 
 Route::get('sanctum/csrf-cookie', function (Request $request) {
     // CSRFトークンをセットしたレスポンスを返します
@@ -33,4 +34,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/tasks/{task}/status', [TaskController::class, 'updateStatus']);
     // タスクステータス選択用
     Route::get('/task-statuses', [TaskStatusController::class, 'index']);
+    // タスクコメント
+    Route::get('/tasks/{task}/comments', [TaskCommentController::class, 'index']);
+    Route::post('/tasks/{task}/comments', [TaskCommentController::class, 'store']);
+    Route::put('/task-comments/{comment}', [TaskCommentController::class, 'update']);
+    Route::delete('/task-comments/{comment}', [TaskCommentController::class, 'destroy']);
 });
