@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\HasOrganization;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TaskComment extends BaseModel
 {
+    use HasFactory;
     use HasOrganization;
+    use SoftDeletes;
 
     protected $fillable = [
         'organization_id',
