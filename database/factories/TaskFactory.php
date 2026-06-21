@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\TaskStatus;
 use App\Models\Project;
+use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TaskFactory extends Factory
@@ -20,8 +21,8 @@ class TaskFactory extends Factory
             'assigned_user_id' => User::factory(),
             'status_id' => TaskStatus::factory(),
             'project_id' => Project::factory(),
-            'organization_id' => 1,
-            'created_by' => 1,
+            'organization_id' => Organization::factory(),
+            'created_by' => User::factory(),
         ];
     }
 }
