@@ -2,19 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasOrganization;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Attachment extends BaseModel
 {
     use HasOrganization;
+    use HasFactory;
 
     protected $fillable = [
         'organization_id',
         'task_id',
-        'uploaded_by',
+        'user_id',
+        'file_name',
         'file_path',
-        'file_name'
+        'mime_type',
+        'file_size',
     ];
 
     public function task()
@@ -22,8 +25,8 @@ class Attachment extends BaseModel
         return $this->belongsTo(Task::class);
     }
 
-    public function uploadedBy()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'uploaded_by');
+        return $this->belongsTo(User::class);
     }
 }
