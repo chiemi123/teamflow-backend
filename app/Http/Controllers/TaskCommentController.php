@@ -7,6 +7,8 @@ use App\Models\TaskComment;
 use App\Http\Requests\StoreTaskCommentRequest;
 use App\Http\Requests\UpdateTaskCommentRequest;
 use App\Http\Resources\TaskCommentResource;
+use Illuminate\Support\Facades\Auth;
+use App\Services\NotificationService;
 
 class TaskCommentController extends Controller
 {
@@ -20,16 +22,19 @@ class TaskCommentController extends Controller
         return TaskCommentResource::collection($comments);
     }
 
-    public function store(StoreTaskCommentRequest $request, Task $task)
+    public function store(StoreTaskCommentRequest $request, Task $task, NotificationService $notificationService): TaskCommentResource
     {
+        $user = Auth::user();
 
-        $comment = TaskComment::create([
-            'task_id' => $task->id,
-            'user_id' => $request->user()->id,
+        $comment = $task->comments()->create([
+            'organization_id' => $task->organization_id,
+            'user_id' => $user->id,
             'content' => $request->validated('content'),
         ]);
 
-        return new TaskCommentResource($comment->load('user'));
+        $notificationService->taskCommented($task, $user);
+
+        return new TaskCommentResource($comment);
     }
 
     public function show(TaskComment $comment)

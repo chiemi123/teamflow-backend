@@ -8,6 +8,7 @@ use App\Models\Attachment;
 use App\Models\Task;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
 
 class AttachmentController extends Controller
@@ -22,7 +23,7 @@ class AttachmentController extends Controller
         return AttachmentResource::collection($attachments);
     }
 
-    public function store(StoreAttachmentRequest $request, Task $task)
+    public function store(StoreAttachmentRequest $request, Task $task, NotificationService $notificationService)
     {
         $user = Auth::user();
 
@@ -38,6 +39,8 @@ class AttachmentController extends Controller
             'mime_type' => $file->getMimeType(),
             'file_size' => $file->getSize(),
         ]);
+
+        $notificationService->attachmentUploaded($task, $user);
 
         return new AttachmentResource($attachment->load('user'));
     }

@@ -8,6 +8,8 @@ use App\Http\Requests\UpdateTaskStatusRequest;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Http\Resources\TaskResource;
+use App\Services\NotificationService;
+use Illuminate\Support\Facades\Auth;
 
 
 
@@ -53,21 +55,27 @@ class TaskController extends Controller
         return new TaskResource($task);
     }
 
-    public function update(UpdateTaskRequest $request, Task $task)
-    {
+    public function update(
+        UpdateTaskRequest $request,
+        Task $task
+    ) {
         $this->authorize('update', $task);
+
 
         $task->update($request->validated());
 
         return new TaskResource($task);
     }
 
-    public function updateStatus(UpdateTaskStatusRequest $request, Task $task)
+    public function updateStatus(UpdateTaskStatusRequest $request, Task $task, NotificationService $notificationService): TaskResource
     {
         $this->authorize('update', $task);
+        $user = Auth::user();
 
         $task->status_id = $request->status_id;
         $task->save();
+
+        $notificationService->taskStatusUpdated($task, $user);
 
         return new TaskResource($task);
     }

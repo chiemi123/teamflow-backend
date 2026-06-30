@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaskComment;
 use App\Models\Organization;
+use App\Models\UserNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class TaskCommentTest extends TestCase
@@ -230,5 +232,89 @@ class TaskCommentTest extends TestCase
 
         $this->deleteJson("/api/task-comments/{$comment->id}")
             ->assertUnauthorized();
+    }
+
+    public function test_notification_is_created_for_assigned_user_when_comment_is_created(): void
+    {
+        $organization = Organization::factory()->create();
+
+        $commentUser = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $assignedUser = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $status = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $commentUser->id,
+        ]);
+
+        $task = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $project->id,
+            'status_id' => $status->id,
+            'assigned_user_id' => $assignedUser->id,
+            'created_by' => $commentUser->id,
+        ]);
+
+        $response = $this->actingAs($commentUser)->postJson("/api/tasks/{$task->id}/comments", [
+            'content' => '確認お願いします。',
+        ]);
+
+        $response->assertCreated();
+
+        $this->assertDatabaseHas('user_notifications', [
+            'organization_id' => $organization->id,
+            'user_id' => $assignedUser->id,
+            'task_id' => $task->id,
+            'type' => 'task_commented',
+            'message' => "タスク「{$task->title}」にコメントが追加されました。",
+            'read_at' => null,
+        ]);
+    }
+
+    public function test_notification_is_not_created_when_comment_user_is_assigned_user(): void
+    {
+        $organization = Organization::factory()->create();
+
+        $user = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $status = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $user->id,
+        ]);
+
+        $task = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $project->id,
+            'status_id' => $status->id,
+            'assigned_user_id' => $user->id,
+            'created_by' => $user->id,
+        ]);
+
+        $response = $this->actingAs($user)->postJson("/api/tasks/{$task->id}/comments", [
+            'content' => '自分の担当タスクにコメントします。',
+        ]);
+
+        $response->assertCreated();
+
+        $this->assertDatabaseMissing('user_notifications', [
+            'organization_id' => $organization->id,
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 'task_commented',
+        ]);
     }
 }

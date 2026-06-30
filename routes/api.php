@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Controllers\TaskStatusController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\UserNotificationController;
 
 Route::get('sanctum/csrf-cookie', function (Request $request) {
     // CSRFトークンをセットしたレスポンスを返します
@@ -40,9 +41,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tasks/{task}/comments', [TaskCommentController::class, 'store']);
     Route::put('/task-comments/{comment}', [TaskCommentController::class, 'update']);
     Route::delete('/task-comments/{comment}', [TaskCommentController::class, 'destroy']);
-    //　添付ファイル
+    // 添付ファイル
     Route::get('/tasks/{task}/attachments', [AttachmentController::class, 'index']);
     Route::post('/tasks/{task}/attachments', [AttachmentController::class, 'store']);
     Route::get('/attachments/{attachment}/download', [AttachmentController::class, 'download']);
     Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy']);
+    // 通知
+    Route::get('/user-notifications', [UserNotificationController::class, 'index']);
+    Route::put('/user-notifications/{notification}/read', [UserNotificationController::class, 'markAsRead']);
 });
