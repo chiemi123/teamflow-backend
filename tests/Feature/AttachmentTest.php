@@ -8,6 +8,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\TaskStatus;
+use App\Models\UserNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -276,5 +277,97 @@ class AttachmentTest extends TestCase
 
         $this->deleteJson("/api/attachments/{$attachment->id}")
             ->assertUnauthorized();
+    }
+
+    public function test_notification_is_created_for_assigned_user_when_attachment_is_uploaded(): void
+    {
+        Storage::fake();
+
+        $organization = Organization::factory()->create();
+
+        $actor = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $assignedUser = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $actor->id,
+        ]);
+
+        $status = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $task = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $project->id,
+            'status_id' => $status->id,
+            'assigned_user_id' => $assignedUser->id,
+            'created_by' => $actor->id,
+        ]);
+
+        $file = UploadedFile::fake()->create('sample.pdf', 100, 'application/pdf');
+
+        $response = $this->actingAs($actor)->postJson("/api/tasks/{$task->id}/attachments", [
+            'file' => $file,
+        ]);
+
+        $response->assertCreated();
+
+        $this->assertDatabaseHas('user_notifications', [
+            'organization_id' => $organization->id,
+            'user_id' => $assignedUser->id,
+            'task_id' => $task->id,
+            'type' => 'attachment_uploaded',
+            'message' => "タスク「{$task->title}」に添付ファイルが追加されました。",
+            'read_at' => null,
+        ]);
+    }
+
+    public function test_notification_is_not_created_when_attachment_uploader_is_assigned_user(): void
+    {
+        Storage::fake();
+
+        $organization = Organization::factory()->create();
+
+        $user = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $user->id,
+        ]);
+
+        $status = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $task = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $project->id,
+            'status_id' => $status->id,
+            'assigned_user_id' => $user->id,
+            'created_by' => $user->id,
+        ]);
+
+        $file = UploadedFile::fake()->create('self-upload.pdf', 100, 'application/pdf');
+
+        $response = $this->actingAs($user)->postJson("/api/tasks/{$task->id}/attachments", [
+            'file' => $file,
+        ]);
+
+        $response->assertCreated();
+
+        $this->assertDatabaseMissing('user_notifications', [
+            'organization_id' => $organization->id,
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 'attachment_uploaded',
+        ]);
     }
 }
