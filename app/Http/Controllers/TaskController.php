@@ -55,14 +55,15 @@ class TaskController extends Controller
         return new TaskResource($task);
     }
 
-    public function update(
-        UpdateTaskRequest $request,
-        Task $task
-    ) {
+    public function update(UpdateTaskRequest $request, Task $task, NotificationService $notificationService): TaskResource
+    {
         $this->authorize('update', $task);
 
+        $user = Auth::user();
 
         $task->update($request->validated());
+
+        $notificationService->taskUpdated($task, $user);
 
         return new TaskResource($task);
     }
