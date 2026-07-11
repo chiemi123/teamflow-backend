@@ -358,4 +358,62 @@ class TaskTest extends TestCase
             'type' => 'task_updated',
         ]);
     }
+
+    public function test_authenticated_user_can_filter_tasks_by_project_id(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+
+        $this->seed(RolesSeeder::class);
+
+        $memberRole = Role::where('name', 'Member')->firstOrFail();
+
+        $user->organizations()->attach($organization->id, [
+            'role_id' => $memberRole->id,
+        ]);
+
+        $user->update([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $projectA = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $user->id,
+        ]);
+
+        $projectB = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $user->id,
+        ]);
+
+        $status = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $taskA = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $projectA->id,
+            'status_id' => $status->id,
+            'created_by' => $user->id,
+        ]);
+
+        $taskB = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $projectB->id,
+            'status_id' => $status->id,
+            'created_by' => $user->id,
+        ]);
+
+        $response = $this->actingAs($user)->getJson("/api/tasks?project_id={$projectA->id}");
+
+        $response->assertOk();
+
+        $response->assertJsonFragment([
+            'id' => $taskA->id,
+        ]);
+
+        $response->assertJsonMissing([
+            'id' => $taskB->id,
+        ]);
+    }
 }
