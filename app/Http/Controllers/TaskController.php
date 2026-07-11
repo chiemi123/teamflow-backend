@@ -9,16 +9,24 @@ use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Http\Resources\TaskResource;
 use App\Services\NotificationService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Task::class);
-        $tasks = Task::with(['status', 'assignedUser'])
+
+        $query = Task::with(['status', 'assignedUser']);
+
+        if ($request->filled('project_id')) {
+            $query->where('project_id', $request->project_id);
+        }
+
+        $tasks = $query
             ->latest()
             ->get();
 
