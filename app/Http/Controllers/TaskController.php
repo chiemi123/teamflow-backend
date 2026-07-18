@@ -53,11 +53,15 @@ class TaskController extends Controller
             'status_id' => $defaultStatus->id,
         ]);
 
+        $task->load(['status', 'assignedUser']);
+
         return new TaskResource($task);
     }
 
     public function show(Task $task)
     {
+        $this->authorize('view', $task);
+
         $task->load(['status', 'assignedUser']);
 
         return new TaskResource($task);
@@ -73,6 +77,8 @@ class TaskController extends Controller
 
         $notificationService->taskUpdated($task, $user);
 
+        $task->load(['status', 'assignedUser']);
+
         return new TaskResource($task);
     }
 
@@ -85,6 +91,8 @@ class TaskController extends Controller
         $task->save();
 
         $notificationService->taskStatusUpdated($task, $user);
+
+        $task->load(['status', 'assignedUser']);
 
         return new TaskResource($task);
     }

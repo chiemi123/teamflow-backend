@@ -417,4 +417,88 @@ class TaskTest extends TestCase
             'id' => $taskB->id,
         ]);
     }
+
+    public function test_owner_task_response_includes_expected_permissions(): void
+    {
+        $organization = Organization::factory()->create();
+
+        $user = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $this->seed(RolesSeeder::class);
+
+        $ownerRole = Role::where('name', 'Owner')->firstOrFail();
+
+        $user->organizations()->attach($organization->id, [
+            'role_id' => $ownerRole->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $user->id,
+        ]);
+
+        $status = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $task = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $project->id,
+            'status_id' => $status->id,
+            'created_by' => $user->id,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->getJson("/api/tasks/{$task->id}");
+
+        $response->assertOk()
+            ->assertJsonPath('data.permissions.can_update', true)
+            ->assertJsonPath('data.permissions.can_delete', true)
+            ->assertJsonPath('data.permissions.can_update_status', true);
+    }
+
+    public function test_member_task_response_includes_expected_permissions(): void
+    {
+        $organization = Organization::factory()->create();
+
+        $user = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $this->seed(RolesSeeder::class);
+
+        $memberRole = Role::where('name', 'Member')->firstOrFail();
+
+        $user->organizations()->attach($organization->id, [
+            'role_id' => $memberRole->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $user->id,
+        ]);
+
+        $status = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $task = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $project->id,
+            'status_id' => $status->id,
+            'created_by' => $user->id,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->getJson("/api/tasks/{$task->id}");
+
+        $response->assertOk()
+            ->assertJsonPath('data.permissions.can_update', true)
+            ->assertJsonPath('data.permissions.can_delete', false)
+            ->assertJsonPath('data.permissions.can_update_status', true);
+    }
 }

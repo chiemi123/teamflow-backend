@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,6 +23,7 @@ class UserResource extends JsonResource
             'can_create_project' => $this->isOwner() || $this->isAdmin(), // 新規作成権限
             'can_edit_project' => $this->isOwner() || $this->isAdmin(), // 編集権限
             'can_delete_project' => $this->isOwner() || $this->isAdmin(), // 削除権限
+            'can_create_task' => $request->user()?->can('create', Task::class) ?? false,
         ];
     }
 }

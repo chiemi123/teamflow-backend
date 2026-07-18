@@ -31,6 +31,23 @@ class TaskResource extends JsonResource
             'due_date' => optional($this->due_date)?->toDateString(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+
+            'permissions' => [
+                'can_update' => $request->user()?->can(
+                    'update',
+                    $this->resource
+                ) ?? false,
+
+                'can_delete' => $request->user()?->can(
+                    'delete',
+                    $this->resource
+                ) ?? false,
+
+                'can_update_status' => $request->user()?->can(
+                    'update',
+                    $this->resource
+                ) ?? false,
+            ],
         ];
     }
 }
