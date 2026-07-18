@@ -31,7 +31,8 @@ class UpdateTaskRequest extends FormRequest
             ],
 
             'title' => ['sometimes', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'description' => ['sometimes', 'nullable', 'string'],
+            'due_date' => ['sometimes', 'nullable', 'date'],
         ];
     }
 }

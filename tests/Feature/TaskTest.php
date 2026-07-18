@@ -180,14 +180,14 @@ class TaskTest extends TestCase
             'project_id' => $project->id,
             'status_id' => $status->id,
             'created_by' => $user->id,
+            'due_date' => null,
         ]);
 
         $response = $this->actingAs($user)->putJson("/api/tasks/{$task->id}", [
-            'project_id' => $project->id,
             'title' => '更新後タスク',
             'description' => '更新後の説明',
-            'status_id' => $status->id,
             'assigned_user_id' => null,
+            'due_date' => '2026-07-31',
         ]);
 
         $response->assertOk();
@@ -196,6 +196,7 @@ class TaskTest extends TestCase
             'id' => $task->id,
             'title' => '更新後タスク',
             'description' => '更新後の説明',
+            'due_date' => '2026-07-31',
         ]);
     }
 
