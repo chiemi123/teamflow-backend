@@ -29,6 +29,7 @@ class TaskResource extends JsonResource
                 'name' => $this->assignedUser->name,
             ] : null,
             'due_date' => optional($this->due_date)?->toDateString(),
+            'completed_at' => $this->completed_at?->toISOString(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 

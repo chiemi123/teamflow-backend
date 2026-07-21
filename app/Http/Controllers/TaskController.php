@@ -67,8 +67,11 @@ class TaskController extends Controller
         return new TaskResource($task);
     }
 
-    public function update(UpdateTaskRequest $request, Task $task, NotificationService $notificationService): TaskResource
-    {
+    public function update(
+        UpdateTaskRequest $request,
+        Task $task,
+        NotificationService $notificationService
+    ): TaskResource {
         $this->authorize('update', $task);
 
         $user = Auth::user();
@@ -82,12 +85,26 @@ class TaskController extends Controller
         return new TaskResource($task);
     }
 
-    public function updateStatus(UpdateTaskStatusRequest $request, Task $task, NotificationService $notificationService): TaskResource
-    {
+    public function updateStatus(
+        UpdateTaskStatusRequest $request,
+        Task $task,
+        NotificationService $notificationService
+    ): TaskResource {
         $this->authorize('update', $task);
-        $user = Auth::user();
 
-        $task->status_id = $request->status_id;
+        $user = Auth::user();
+        $validated = $request->validated();
+
+        $taskStatus = TaskStatus::findOrFail($validated['status_id']);
+
+        $task->status_id = $taskStatus->id;
+
+        if ($taskStatus->name === 'Done') {
+            $task->completed_at ??= now();
+        } else {
+            $task->completed_at = null;
+        }
+
         $task->save();
 
         $notificationService->taskStatusUpdated($task, $user);

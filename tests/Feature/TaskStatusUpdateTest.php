@@ -14,8 +14,7 @@ class TaskStatusUpdateTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function authorized_user_can_update_task_status()
+    public function test_authorized_user_can_update_task_status(): void
     {
         // ① Organization 作成
         $org = Organization::factory()->create();
@@ -68,8 +67,7 @@ class TaskStatusUpdateTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function user_from_other_organization_cannot_update_task_status()
+    public function test_user_from_other_organization_cannot_update_task_status(): void
     {
         // ① 組織作成
         $org1 = Organization::factory()->create();
@@ -208,5 +206,162 @@ class TaskStatusUpdateTest extends TestCase
             'task_id' => $task->id,
             'type' => 'task_status_updated',
         ]);
+    }
+
+    public function test_completed_at_is_set_when_task_status_is_updated_to_done(): void
+    {
+        $organization = Organization::factory()->create();
+
+        $user = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $user->id,
+        ]);
+
+        $todoStatus = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+            'name' => 'Todo',
+            'sort_order' => 1,
+        ]);
+
+        $doneStatus = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+            'name' => 'Done',
+            'sort_order' => 4,
+        ]);
+
+        $task = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $project->id,
+            'status_id' => $todoStatus->id,
+            'created_by' => $user->id,
+            'completed_at' => null,
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->putJson("/api/tasks/{$task->id}/status", [
+                'status_id' => $doneStatus->id,
+            ]);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.status_id', $doneStatus->id)
+            ->assertJsonPath('data.task_status.name', 'Done')
+            ->assertJsonStructure([
+                'data' => [
+                    'completed_at',
+                ],
+            ]);
+
+        $task->refresh();
+
+        $this->assertNotNull($task->completed_at);
+        $this->assertNotNull($response->json('data.completed_at'));
+
+        $this->assertDatabaseHas('tasks', [
+            'id' => $task->id,
+            'status_id' => $doneStatus->id,
+        ]);
+    }
+
+    public function test_completed_at_is_cleared_when_task_status_is_updated_from_done(): void
+    {
+        $organization = Organization::factory()->create();
+
+        $user = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $user->id,
+        ]);
+
+        $doneStatus = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+            'name' => 'Done',
+            'sort_order' => 4,
+        ]);
+
+        $inProgressStatus = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+            'name' => 'In Progress',
+            'sort_order' => 2,
+        ]);
+
+        $task = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $project->id,
+            'status_id' => $doneStatus->id,
+            'created_by' => $user->id,
+            'completed_at' => now()->subDay(),
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->putJson("/api/tasks/{$task->id}/status", [
+                'status_id' => $inProgressStatus->id,
+            ]);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.status_id', $inProgressStatus->id)
+            ->assertJsonPath('data.task_status.name', 'In Progress')
+            ->assertJsonPath('data.completed_at', null);
+
+        $task->refresh();
+
+        $this->assertNull($task->completed_at);
+
+        $this->assertDatabaseHas('tasks', [
+            'id' => $task->id,
+            'status_id' => $inProgressStatus->id,
+            'completed_at' => null,
+        ]);
+    }
+
+    public function test_completed_at_is_not_overwritten_when_task_is_already_done(): void
+    {
+        $organization = Organization::factory()->create();
+
+        $user = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $user->id,
+        ]);
+
+        $doneStatus = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+            'name' => 'Done',
+            'sort_order' => 4,
+        ]);
+
+        $originalCompletedAt = now()->subDay()->startOfSecond();
+
+        $task = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $project->id,
+            'status_id' => $doneStatus->id,
+            'created_by' => $user->id,
+            'completed_at' => $originalCompletedAt,
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->putJson("/api/tasks/{$task->id}/status", [
+                'status_id' => $doneStatus->id,
+            ]);
+
+        $response->assertOk();
+
+        $task->refresh();
+
+        $this->assertTrue(
+            $task->completed_at->equalTo($originalCompletedAt)
+        );
     }
 }

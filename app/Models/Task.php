@@ -25,6 +25,7 @@ class Task extends BaseModel
 
     protected $casts = [
         'due_date' => 'datetime',
+        'completed_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
