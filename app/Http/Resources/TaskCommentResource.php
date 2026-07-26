@@ -24,6 +24,16 @@ class TaskCommentResource extends JsonResource
             'content' => $this->content,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'permissions' => [
+                'can_update' => $request->user()?->can(
+                    'update',
+                    $this->resource
+                ) ?? false,
+                'can_delete' => $request->user()?->can(
+                    'delete',
+                    $this->resource
+                ) ?? false,
+            ],
         ];
     }
 }

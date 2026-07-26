@@ -36,7 +36,7 @@ class TaskCommentPolicy
      */
     public function update(User $user, TaskComment $comment): bool
     {
-        return $comment->organization_id === $user->current_org_id && ($user->isOwner() || $user->isAdmin());
+        return $comment->organization_id === $user->current_org_id && $comment->user_id === $user->id;
     }
 
     /**
@@ -44,7 +44,7 @@ class TaskCommentPolicy
      */
     public function delete(User $user, TaskComment $comment): bool
     {
-        return $comment->organization_id === $user->current_org_id && ($user->isOwner() || $user->isAdmin());
+        return $comment->organization_id === $user->current_org_id && $comment->user_id === $user->id;
     }
 
     /**
