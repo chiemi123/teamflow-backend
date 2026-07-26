@@ -22,8 +22,11 @@ class TaskCommentController extends Controller
         return TaskCommentResource::collection($comments);
     }
 
-    public function store(StoreTaskCommentRequest $request, Task $task, NotificationService $notificationService): TaskCommentResource
-    {
+    public function store(
+        StoreTaskCommentRequest $request,
+        Task $task,
+        NotificationService $notificationService
+    ): TaskCommentResource {
         $user = Auth::user();
 
         $comment = $task->comments()->create([
@@ -34,7 +37,7 @@ class TaskCommentController extends Controller
 
         $notificationService->taskCommented($task, $user);
 
-        return new TaskCommentResource($comment);
+        return new TaskCommentResource($comment->load('user'));
     }
 
     public function show(TaskComment $comment)
@@ -44,8 +47,11 @@ class TaskCommentController extends Controller
         return new TaskCommentResource($comment);
     }
 
-    public function update(UpdateTaskCommentRequest $request, TaskComment $comment)
-    {
+    public function update(
+        UpdateTaskCommentRequest $request,
+        TaskComment $comment
+    ): TaskCommentResource {
+        $this->authorize('update', $comment);
         $comment->update($request->validated());
 
         return new TaskCommentResource($comment->load('user'));
@@ -53,6 +59,7 @@ class TaskCommentController extends Controller
 
     public function destroy(TaskComment $comment)
     {
+        $this->authorize('delete', $comment);
         $comment->delete();
 
         return response()->noContent();
