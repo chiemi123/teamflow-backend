@@ -10,6 +10,7 @@ use App\Http\Controllers\TaskStatusController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\UserNotificationController;
+use App\Http\Controllers\OrganizationMemberController;
 
 Route::get('sanctum/csrf-cookie', function (Request $request) {
     // CSRFトークンをセットしたレスポンスを返します
@@ -49,4 +50,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // 通知
     Route::get('/user-notifications', [UserNotificationController::class, 'index']);
     Route::put('/user-notifications/{notification}/read', [UserNotificationController::class, 'markAsRead']);
+    // 担当者設定
+    Route::get(
+        '/organization-members',
+        [OrganizationMemberController::class, 'index']
+    );
 });
