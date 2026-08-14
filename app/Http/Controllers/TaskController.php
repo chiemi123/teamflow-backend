@@ -20,7 +20,8 @@ class TaskController extends Controller
     {
         $this->authorize('viewAny', Task::class);
 
-        $query = Task::with(['status', 'assignedUser']);
+        $query = Task::with(['status', 'assignedUser'])
+            ->withCount(['comments', 'attachments']);
 
         if ($request->filled('project_id')) {
             $query->where('project_id', $request->project_id);

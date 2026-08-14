@@ -8,7 +8,8 @@ use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\User;
 use App\Models\Role;
-use App\Models\UserNotification;
+use App\Models\Attachment;
+use App\Models\TaskComment;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -500,5 +501,85 @@ class TaskTest extends TestCase
             ->assertJsonPath('data.permissions.can_update', true)
             ->assertJsonPath('data.permissions.can_delete', false)
             ->assertJsonPath('data.permissions.can_update_status', true);
+    }
+
+    public function test_task_list_includes_comment_and_attachment_counts(): void
+    {
+        $organization = Organization::factory()->create();
+
+        $user = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $user->id,
+        ]);
+
+        $status = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $task = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $project->id,
+            'status_id' => $status->id,
+            'created_by' => $user->id,
+        ]);
+
+        TaskComment::factory()->count(3)->create([
+            'organization_id' => $organization->id,
+            'task_id' => $task->id,
+            'user_id' => $user->id,
+        ]);
+
+        Attachment::factory()->count(2)->create([
+            'organization_id' => $organization->id,
+            'task_id' => $task->id,
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->getJson('/api/tasks');
+
+        $response->assertOk()
+            ->assertJsonPath('data.0.id', $task->id)
+            ->assertJsonPath('data.0.comments_count', 3)
+            ->assertJsonPath('data.0.attachments_count', 2);
+    }
+
+    public function test_task_list_returns_zero_when_task_has_no_comments_or_attachments(): void
+    {
+        $organization = Organization::factory()->create();
+
+        $user = User::factory()->create([
+            'current_org_id' => $organization->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'organization_id' => $organization->id,
+            'created_by' => $user->id,
+        ]);
+
+        $status = TaskStatus::factory()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $task = Task::factory()->create([
+            'organization_id' => $organization->id,
+            'project_id' => $project->id,
+            'status_id' => $status->id,
+            'created_by' => $user->id,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->getJson('/api/tasks');
+
+        $response->assertOk()
+            ->assertJsonPath('data.0.id', $task->id)
+            ->assertJsonPath('data.0.comments_count', 0)
+            ->assertJsonPath('data.0.attachments_count', 0);
     }
 }
