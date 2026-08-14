@@ -33,6 +33,9 @@ class TaskResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
+            'comments_count' => $this->whenCounted('comments'),
+            'attachments_count' => $this->whenCounted('attachments'),
+
             'permissions' => [
                 'can_update' => $request->user()?->can(
                     'update',
