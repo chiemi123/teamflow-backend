@@ -22,6 +22,8 @@ class ProjectResource extends JsonResource
                 'id' => $this->creator->id,
                 'name' => $this->creator->name,
             ] : null,
+            'tasks_count' => $this->whenCounted('tasks'),
+            'completed_tasks_count' => $this->whenCounted('completed_tasks'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

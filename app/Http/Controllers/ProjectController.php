@@ -16,6 +16,14 @@ class ProjectController extends Controller
     {
         $this->authorize('viewAny', Project::class);
         $projects = Project::with('creator')
+            ->withCount([
+                'tasks',
+                'tasks as completed_tasks_count' => function ($query) {
+                    $query->whereHas('status', function ($query) {
+                        $query->where('name', 'Done');
+                    });
+                },
+            ])
             ->latest()
             ->get();
         return ProjectResource::collection($projects);
