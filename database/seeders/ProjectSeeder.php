@@ -18,7 +18,7 @@ class ProjectSeeder extends Seeder
         $org1 = Organization::where('name', 'Demo Organization')->first();
         $org2 = Organization::where('name', 'Other Organization')->first();
 
-        $user1 = User::where('email', 'admin@example.com')->first();
+        $user1 = User::where('email', 'owner@example.com')->first();
         $user2 = User::where('email', 'user2@example.com')->first();
 
         if (!$org1 || !$org2 || !$user1 || !$user2) {

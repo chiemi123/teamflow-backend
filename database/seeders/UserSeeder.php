@@ -23,7 +23,27 @@ class UserSeeder extends Seeder
             throw new RuntimeException('OrganizationSeederを先に実行してください');
         }
 
-        // ユーザー①（既存）
+        // ユーザー①（Owner:Demo Organization）
+        User::updateOrCreate(
+            ['email' => 'owner@example.com'],
+            [
+                'name' => 'Owner User',
+                'password' => Hash::make('password'),
+                'current_org_id' => $org1->id
+            ]
+        );
+
+        // ユーザー②（Member:Other Organization）
+        User::updateOrCreate(
+            ['email' => 'user2@example.com'],
+            [
+                'name' => 'User Two',
+                'password' => Hash::make('password'),
+                'current_org_id' => $org2->id
+            ]
+        );
+
+        // ユーザー③（Admin:Demo Organization）
         User::updateOrCreate(
             ['email' => 'admin@example.com'],
             [
@@ -33,13 +53,13 @@ class UserSeeder extends Seeder
             ]
         );
 
-        // ユーザー②（追加）
+        // ユーザー④（Member:Demo Organization）
         User::updateOrCreate(
-            ['email' => 'user2@example.com'],
+            ['email' => 'member@example.com'],
             [
-                'name' => 'User Two',
+                'name' => 'Member User',
                 'password' => Hash::make('password'),
-                'current_org_id' => $org2->id
+                'current_org_id' => $org1->id
             ]
         );
     }
