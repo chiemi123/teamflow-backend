@@ -21,7 +21,8 @@ class DatabaseSeeder extends Seeder
             OrganizationUserSeeder::class,
             ProjectSeeder::class,
             TaskStatusSeeder::class,
-            TaskSeeder::class, // ←追加
+            TaskSeeder::class,
+            TaskCommentSeeder::class,
         ]);
     }
 }
