@@ -87,23 +87,9 @@ TaskやCommentについてもPolicyによる認可を行い、Commentの編集�
 
 ## データ構成
 
-主なデータ構造は以下のとおりです。
+主な業務テーブルとリレーションは以下のとおりです。
 
-```text
-Organization
-    |
-    +-- organization_user -- User
-    |
-    +-- Project
-          |
-          +-- Task
-                |
-                +-- TaskComment
-                |
-                +-- Attachment
-```
-
-その他、Task Statusやアプリ内Notificationなどのデータを管理しています。
+![TeamFlow ER図](docs/er-diagram.png)
 
 ### Main Tables
 
@@ -117,6 +103,7 @@ Organization
 - `task_comments`
 - `attachments`
 - `user_notifications`
+- `task_activity_logs`
 
 ---
 
@@ -129,9 +116,9 @@ Taskでは以下のステータスを管理しています。
 - Review
 - Done
 
-TaskをDoneへ変更した場合は `completed_at` に完了日時を設定します。
+TaskをDoneへ変更した場合は `completed_at` に完了日時を記録します。
 
-Doneから別のステータスへ戻した場合は `completed_at` を `null` に戻し、現在のTask Statusと完了日時が一致するように管理しています。
+Doneから別のステータスへ戻した場合は `completed_at` を `null` に戻し、現在のTask Statusと完了状態の整合性を保つようにしています。
 
 ---
 
@@ -233,7 +220,7 @@ Browser
 
 ## セットアップ
 
-### Requirements
+### 必要環境
 
 以下の環境・ツールが必要です。
 
