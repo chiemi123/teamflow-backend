@@ -239,7 +239,6 @@ Browser
 
 - Docker
 - Docker Compose
-- Composer
 - Git
 
 > 開発時はWindows 11 + WSL2 + Docker Desktop環境で動作確認しています。
@@ -272,21 +271,38 @@ cd teamflow-backend
 
 ### 2. Install Dependencies
 
-Composerの依存パッケージをインストールします。
+Laravel Sailを起動するために必要なComposer依存パッケージを、Dockerを使用してインストールします。
+
+ホスト環境へPHPやComposerをインストールする必要はありません。
 
 ```bash
-composer install
+docker run --rm \
+  -u "$(id -u):$(id -g)" \
+  -v "$(pwd):/var/www/html" \
+  -w /var/www/html \
+  laravelsail/php84-composer:latest \
+  composer install --ignore-platform-reqs
 ```
+
+インストールが完了すると、`vendor/` が作成され、Laravel Sailを使用できるようになります。
 
 ### 3. Environment
 
-`.env.example` から `.env` を作成します。
+Backendの `.env.example` から `.env` を作成します。
 
 ```bash
 cp .env.example .env
 ```
 
-TeamFlowではMySQLを使用します。
+次に、Frontendの `.env.local.example` から `.env.local` を作成します。
+
+```bash
+cd ../teamflow-frontend
+cp .env.local.example .env.local
+cd ../teamflow-backend
+```
+
+TeamFlowではMySQLを使用し、アプリケーションへのアクセスには `http://laravel.test` を使用します。
 
 ### 4. hosts設定
 
@@ -320,7 +336,7 @@ hostsファイル：
 
 ### 5. Start Docker
 
-Laravel SailでDockerコンテナを起動します。
+BackendディレクトリでLaravel Sailを使用してDockerコンテナを起動します。
 
 ```bash
 ./vendor/bin/sail up -d
@@ -355,7 +371,17 @@ Databaseを初期化し、Seederを実行します。
 
 Seederによって、Organization、User、Project、Task、Task Status、Commentなど、TeamFlowの動作確認に利用できるデモデータが作成されます。
 
-### 8. Access
+### 8. Run Tests
+
+PHPUnitによるテストを実行します。
+
+```bash
+./vendor/bin/sail artisan test
+```
+
+TeamFlow v1では、Feature Testを中心に認証・認可、Organization間のデータ分離、Project / Task、Comment、Attachment、Notificationなどを検証しています。
+
+### 9. Access
 
 Docker起動後、以下のURLからTeamFlowへアクセスできます。
 
