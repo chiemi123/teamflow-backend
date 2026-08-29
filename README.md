@@ -17,7 +17,7 @@ FrontendはNext.jsで構築し、Backendとは別リポジトリで管理して�
 
 ---
 
-## Technology Stack
+## 技術スタック
 
 | Category            | Technology             |
 | ------------------- | ---------------------- |
@@ -53,7 +53,7 @@ Docker開発環境には、Redis、Meilisearch、Mailpit、Seleniumも含まれ�
 
 ---
 
-## Multi Tenant
+## マルチテナント
 
 Organization単位でデータを分離するマルチテナント構成を採用しています。
 
@@ -65,7 +65,7 @@ ProjectやTaskなどのOrganizationに属するデータには `organization_id`
 
 ---
 
-## Role Based Access Control
+## ロールベースアクセス制御
 
 Organization内では、以下の3つのRoleを使用しています。
 
@@ -120,7 +120,7 @@ Organization
 
 ---
 
-## Task Status Management
+## タスクステータス管理
 
 Taskでは以下のステータスを管理しています。
 
@@ -135,7 +135,7 @@ Doneから別のステータスへ戻した場合は `completed_at` を `null` �
 
 ---
 
-## Notification
+## 通知
 
 TeamFlowではアプリ内通知を実装しています。
 
@@ -167,7 +167,7 @@ TeamFlowではアプリ内通知を実装しています。
 
 ---
 
-## Testing
+## テスト
 
 PHPUnitによるFeature Testを中心に、APIの正常系だけでなく、認証・認可やOrganization間のデータ分離も検証しています。
 
@@ -191,7 +191,7 @@ TeamFlow v1完成時点：
 
 ---
 
-## Development Environment
+## 開発環境
 
 TeamFlowの開発には、以下の環境を使用しています。
 
@@ -211,7 +211,7 @@ teamflow/
 └── teamflow-frontend/
 ```
 
-### Reverse Proxy
+### リバースプロキシ
 
 Nginxをリバースプロキシとして使用し、FrontendとBackendを `laravel.test` の同一ホストで扱っています。
 
@@ -231,7 +231,7 @@ Browser
 
 ---
 
-## Setup
+## セットアップ
 
 ### Requirements
 
@@ -243,7 +243,7 @@ Browser
 
 > 開発時はWindows 11 + WSL2 + Docker Desktop環境で動作確認しています。
 
-### 1. Clone
+### 1. クローン
 
 任意の作業ディレクトリを作成し、Backend / Frontendを同じ親ディレクトリへcloneします。
 
@@ -269,7 +269,7 @@ Backendディレクトリへ移動します。
 cd teamflow-backend
 ```
 
-### 2. Install Dependencies
+### 2. 依存パッケージのインストール
 
 Laravel Sailを起動するために必要なComposer依存パッケージを、Dockerを使用してインストールします。
 
@@ -286,7 +286,7 @@ docker run --rm \
 
 インストールが完了すると、`vendor/` が作成され、Laravel Sailを使用できるようになります。
 
-### 3. Environment
+### 3. 環境設定
 
 Backendの `.env.example` から `.env` を作成します。
 
@@ -334,7 +334,7 @@ hostsファイル：
 
 編集には管理者権限が必要です。
 
-### 5. Start Docker
+### 5. Dockerの起動
 
 BackendディレクトリでLaravel Sailを使用してDockerコンテナを起動します。
 
@@ -353,7 +353,7 @@ BackendディレクトリでLaravel Sailを使用してDockerコンテナを起�
 - Next.js
 - Nginx
 
-### 6. Generate Application Key
+### 6. Application Keyの生成
 
 LaravelのApplication Keyを生成します。
 
@@ -371,7 +371,7 @@ Databaseを初期化し、Seederを実行します。
 
 Seederによって、Organization、User、Project、Task、Task Status、Commentなど、TeamFlowの動作確認に利用できるデモデータが作成されます。
 
-### 8. Run Tests
+### 8. テスト実行
 
 PHPUnitによるテストを実行します。
 
@@ -381,7 +381,7 @@ PHPUnitによるテストを実行します。
 
 TeamFlow v1では、Feature Testを中心に認証・認可、Organization間のデータ分離、Project / Task、Comment、Attachment、Notificationなどを検証しています。
 
-### 9. Access
+### 9. アクセス
 
 Docker起動後、以下のURLからTeamFlowへアクセスできます。
 
@@ -393,7 +393,7 @@ Nginxをリバースプロキシとして使用し、FrontendとBackendを同一
 
 ---
 
-## Demo Accounts
+## デモアカウント
 
 Seeder実行後、Demo Organizationで以下のアカウントを利用できます。
 
@@ -407,11 +407,11 @@ Seeder実行後、Demo Organizationで以下のアカウントを利用できま
 
 ---
 
-## Future Improvements
+## 今後の拡張
 
-TeamFlow v1では、Project / Taskを中心とした主要な業務管理機能の実装を完了しています。
+TeamFlow v1では、Project / Taskを中心とした業務管理機能を実装しています。
 
-今後はv1.1相当のSaaS管理機能として、以下を検討しています。
+今後の拡張として、より本格的なSaaS運用を想定した以下の機能を検討しています。
 
 - Organization作成・管理
 - Organization切り替え
@@ -419,13 +419,3 @@ TeamFlow v1では、Project / Taskを中心とした主要な業務管理機能�
 - Role管理
 - Owner移管
 - Organization削除ルール
-
-これらは既存機能の不足修正ではなく、TeamFlowをより本格的なSaaSとして運用するための機能拡張として位置付けています。
-
----
-
-## Status
-
-**TeamFlow v1 — Completed**
-
-Project / Taskを中心とした業務管理機能に加え、マルチテナント、認証・認可、コメント、添付ファイル、通知、Feature Test、Seederによる再現可能なデモ環境まで実装しています。
